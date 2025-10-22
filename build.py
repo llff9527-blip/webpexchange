@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 WebP图片转换器 - 一键打包脚本
 
@@ -21,6 +22,12 @@ import argparse
 import subprocess
 from pathlib import Path
 
+# 设置 UTF-8 输出（Windows 兼容）
+if sys.platform == 'win32':
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 # 项目配置
 PROJECT_NAME = "WebP图片转换器"
 APP_NAME = "WebPConverter"
@@ -37,13 +44,17 @@ SPEC_DIR = PROJECT_ROOT
 
 class Colors:
     """终端颜色"""
-    HEADER = '\033[95m'
-    BLUE = '\033[94m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    END = '\033[0m'
-    BOLD = '\033[1m'
+    # 在 Windows 上禁用颜色
+    if sys.platform == 'win32':
+        HEADER = BLUE = GREEN = YELLOW = RED = END = BOLD = ''
+    else:
+        HEADER = '\033[95m'
+        BLUE = '\033[94m'
+        GREEN = '\033[92m'
+        YELLOW = '\033[93m'
+        RED = '\033[91m'
+        END = '\033[0m'
+        BOLD = '\033[1m'
 
 
 def print_header(message):
@@ -55,22 +66,22 @@ def print_header(message):
 
 def print_info(message):
     """打印信息"""
-    print(f"{Colors.BLUE}ℹ️  {message}{Colors.END}")
+    print(f"{Colors.BLUE}[INFO] {message}{Colors.END}")
 
 
 def print_success(message):
     """打印成功消息"""
-    print(f"{Colors.GREEN}✅ {message}{Colors.END}")
+    print(f"{Colors.GREEN}[OK] {message}{Colors.END}")
 
 
 def print_warning(message):
     """打印警告"""
-    print(f"{Colors.YELLOW}⚠️  {message}{Colors.END}")
+    print(f"{Colors.YELLOW}[WARN] {message}{Colors.END}")
 
 
 def print_error(message):
     """打印错误"""
-    print(f"{Colors.RED}❌ {message}{Colors.END}")
+    print(f"{Colors.RED}[ERROR] {message}{Colors.END}")
 
 
 def detect_platform():
@@ -198,10 +209,12 @@ def build_windows():
         "--windowed",  # 不显示控制台窗口(对于GUI应用)
         "--onefile",   # 打包成单个exe
         "--clean",     # 清理缓存
-        # 添加数据文件
-        "--add-data", "src;src",  # Windows 使用分号
         # 隐藏导入
         "--hidden-import", "PIL._tkinter_finder",
+        "--hidden-import", "PIL.Image",
+        "--hidden-import", "tkinter",
+        # 收集所有子模块
+        "--collect-all", "PIL",
         # 图标(如果有)
         # "--icon", "resources/icon.ico",
         # 主脚本
