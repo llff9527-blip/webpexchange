@@ -158,12 +158,26 @@ def build_mac():
         "pyinstaller",
         "--name", APP_NAME,
         "--windowed",  # 不显示控制台窗口
-        "--onefile",   # 打包成单个文件
+        "--onedir",    # 打包为目录（更稳定）
         "--clean",     # 清理缓存
-        # 添加数据文件
+        # 添加src目录到打包
         "--add-data", "src:src",
-        # 隐藏导入
+        # Python标准库
+        "--hidden-import", "uuid",
+        "--hidden-import", "threading",
+        "--hidden-import", "pathlib",
+        "--hidden-import", "dataclasses",
+        "--hidden-import", "enum",
+        # tkinter 相关导入
+        "--hidden-import", "tkinter",
+        "--hidden-import", "tkinter.ttk",
+        "--hidden-import", "tkinter.messagebox",
+        "--hidden-import", "tkinter.filedialog",
+        "--collect-all", "tkinter",
+        # PIL 相关导入
         "--hidden-import", "PIL._tkinter_finder",
+        "--hidden-import", "PIL.Image",
+        "--collect-all", "PIL",
         # macOS 特定选项
         "--osx-bundle-identifier", f"com.{AUTHOR.lower().replace(' ', '')}.{APP_NAME.lower()}",
         # 图标(如果有)
@@ -207,13 +221,25 @@ def build_windows():
         "pyinstaller",
         "--name", APP_NAME,
         "--windowed",  # 不显示控制台窗口(对于GUI应用)
-        "--onefile",   # 打包成单个exe
+        "--onedir",    # 打包为目录（更稳定）
         "--clean",     # 清理缓存
-        # 隐藏导入
+        # 添加src目录到打包 (Windows使用分号)
+        "--add-data", "src;src",
+        # Python标准库
+        "--hidden-import", "uuid",
+        "--hidden-import", "threading",
+        "--hidden-import", "pathlib",
+        "--hidden-import", "dataclasses",
+        "--hidden-import", "enum",
+        # tkinter 相关导入
+        "--hidden-import", "tkinter",
+        "--hidden-import", "tkinter.ttk",
+        "--hidden-import", "tkinter.messagebox",
+        "--hidden-import", "tkinter.filedialog",
+        "--collect-all", "tkinter",
+        # PIL 相关导入
         "--hidden-import", "PIL._tkinter_finder",
         "--hidden-import", "PIL.Image",
-        "--hidden-import", "tkinter",
-        # 收集所有子模块
         "--collect-all", "PIL",
         # 图标(如果有)
         # "--icon", "resources/icon.ico",
@@ -233,14 +259,18 @@ def build_windows():
         sys.exit(1)
 
     # 检查输出
-    exe_path = DIST_DIR / f"{APP_NAME}.exe"
+    app_dir = DIST_DIR / APP_NAME
+    exe_path = app_dir / f"{APP_NAME}.exe"
     if exe_path.exists():
-        print_success(f"Windows 应用已生成: {exe_path}")
-        print_info(f"文件大小: {get_file_size(exe_path):.2f} MB")
+        print_success(f"Windows 应用已生成: {app_dir}")
+        print_info(f"主程序: {exe_path}")
+        print_info(f"目录大小: {get_dir_size(app_dir):.2f} MB")
 
         # 提示如何运行
         print_info("\n运行方法:")
         print(f"  双击运行: {exe_path}")
+        print_info("\n分发说明:")
+        print(f"  请将整个目录 {app_dir} 打包发送给用户")
     else:
         print_error("应用生成失败")
         sys.exit(1)

@@ -55,7 +55,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           cd dist
-          7z a ../WebPConverter-Windows.zip WebPConverter.exe README.txt
+          7z a ../WebPConverter-Windows.zip WebPConverter README.txt
 
       - name: Create Release Archive (Linux)
         if: matrix.os == 'ubuntu-latest'
