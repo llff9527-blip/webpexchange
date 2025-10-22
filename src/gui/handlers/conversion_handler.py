@@ -70,7 +70,14 @@ class ConversionHandler:
         preserve_metadata: bool
     ):
         """转换工作线程"""
+        import sys
+        import traceback
+
         try:
+            print(f"[DEBUG] 开始转换: {image_file.file_path}", file=sys.stderr)
+            print(f"[DEBUG] 输出路径: {output_path}", file=sys.stderr)
+            print(f"[DEBUG] 质量: {quality}", file=sys.stderr)
+
             # 执行转换
             result = self.converter_service.convert_image(
                 input_file=image_file,
@@ -80,8 +87,11 @@ class ConversionHandler:
                 stop_event=self.stop_event
             )
 
+            print(f"[DEBUG] 转换完成: success={result.success}", file=sys.stderr)
+
             # 将结果放入队列
             self.result_queue.put(result)
+            print(f"[DEBUG] 结果已放入队列", file=sys.stderr)
 
             # 触发回调(在主线程中调用)
             if self.on_complete:
@@ -91,6 +101,9 @@ class ConversionHandler:
 
         except Exception as e:
             # 错误处理
+            print(f"[DEBUG] 转换异常: {e}", file=sys.stderr)
+            traceback.print_exc(file=sys.stderr)
+
             error_result = ConversionResult(
                 success=False,
                 error_message=f"转换异常: {str(e)}"

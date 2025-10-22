@@ -19,7 +19,20 @@
       "Bash(chmod:*)",
       "Bash(pytest:*)",
       "Bash(PYTHONPATH=/Users/llff/Projects/webpexchange:$PYTHONPATH pytest:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(./setup-github.sh)",
+      "Bash(git push:*)",
+      "Bash(gh workflow run:*)",
+      "Bash(echo:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run download:*)",
+      "Bash(unzip:*)",
+      "Bash(downloads/WebPConverter-macOS/WebPConverter.app/Contents/MacOS/WebPConverter)",
+      "Bash(open dist/WebPConverter.app)",
+      "Bash(dist/WebPConverter.app/Contents/MacOS/WebPConverter)",
+      "Bash(timeout:*)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []

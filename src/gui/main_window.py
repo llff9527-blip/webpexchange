@@ -115,6 +115,16 @@ class MainWindow:
             # 检查结果
             result = self.conversion_handler.get_result()
             if result:
+                print(f"[DEBUG] 轮询检测到结果: success={result.success}", file=sys.stderr)
+                self._handle_conversion_result(result)
+            else:
+                # 没有结果，继续等待
+                pass
+        else:
+            # 线程已结束，检查是否有未处理的结果
+            result = self.conversion_handler.get_result()
+            if result:
+                print(f"[DEBUG] 线程结束后获取结果: success={result.success}", file=sys.stderr)
                 self._handle_conversion_result(result)
 
         # 继续轮询

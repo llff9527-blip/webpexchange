@@ -83,8 +83,13 @@ class ConverterService:
             )
 
         try:
+            import sys
+            print(f"[CONVERT] 打开图片: {input_file.file_path}", file=sys.stderr)
+
             # 打开图片
             with Image.open(input_file.file_path) as img:
+                print(f"[CONVERT] 图片已打开: {img.mode}, {img.size}", file=sys.stderr)
+
                 # 检查取消标志
                 if stop_event and stop_event.is_set():
                     return ConversionResult(
@@ -96,10 +101,13 @@ class ConverterService:
                 # 提取元数据
                 metadata = None
                 if preserve_metadata:
+                    print(f"[CONVERT] 提取元数据...", file=sys.stderr)
                     metadata = self.metadata_service.extract_metadata(img)
+                    print(f"[CONVERT] 元数据提取完成", file=sys.stderr)
 
                 # 转换为RGB模式(WebP不支持P模式)
                 if img.mode in ('P', 'RGBA', 'LA'):
+                    print(f"[CONVERT] 转换颜色模式: {img.mode}", file=sys.stderr)
                     if img.mode == 'P':
                         img = img.convert('RGB')
                     elif img.mode in ('RGBA', 'LA'):
@@ -107,14 +115,18 @@ class ConverterService:
                         pass
 
                 # 准备保存参数
+                # method=4是质量和速度的平衡点（0-6，6最慢但质量最好）
+                # 对于大文件使用method=4避免过长等待时间
                 save_params = {
                     'format': 'WEBP',
                     'quality': quality,
-                    'method': 6  # 使用最高质量的编码方法
+                    'method': 4  # 平衡质量和速度
                 }
+                print(f"[CONVERT] 保存参数: {save_params}", file=sys.stderr)
 
                 # 嵌入元数据
                 if preserve_metadata and metadata and metadata.has_metadata:
+                    print(f"[CONVERT] 嵌入元数据...", file=sys.stderr)
                     metadata_params = self.metadata_service.embed_metadata(metadata)
                     save_params.update(metadata_params)
 
@@ -127,7 +139,9 @@ class ConverterService:
                     )
 
                 # 保存为WebP
+                print(f"[CONVERT] 开始保存WebP: {output_path}", file=sys.stderr)
                 img.save(output_path, **save_params)
+                print(f"[CONVERT] WebP保存完成", file=sys.stderr)
 
             # 计算输出文件大小和压缩比
             output_size = output_path.stat().st_size
